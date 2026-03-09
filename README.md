@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/slime meet.png" width="300" alt="sLime Logo">
+  <img src="assets/logo.png" width="500" alt="sLime Logo">
 </p>
 
 <h1 align="center">sLime</h1>
