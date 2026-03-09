@@ -1,54 +1,45 @@
-<p align="center">
-  <img src="assets/logo.png" width="120" alt="sLime Logo">
-</p>
-
-<h1 align="center">sLime</h1>
-
-<p align="center">
-  <b>The Lightweight, Open-Source Alternative for Direct Video Meetings.</b>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/build-local--only-blue">
-  <img src="https://img.shields.io/badge/stack-Tauri%20%7C%20Rust%20%7C%20React-orange">
-  <img src="https://img.shields.io/badge/license-Apache--2.0-green">
-</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="left" width="160">
+      <img src="assets/logo.png" width="150" alt="sLime Logo">
+    </td>
+    <td align="center">
+      <h1 align="center">sLime</h1>
+      <p align="center"><strong>Scalable Live Interaction Media</strong></p>
+      <p align="center">
+        <img src="https://img.shields.io/badge/Engine-Rust%20%7C%20Tauri-000000?style=flat-square">
+        <img src="https://img.shields.io/badge/Protocol-WebRTC-000000?style=flat-square">
+        <img src="https://img.shields.io/badge/License-Apache--2.0-000000?style=flat-square">
+      </p>
+    </td>
+    <td width="160"></td>
+  </tr>
+</table>
 
 ---
 
-## 🚀 Why sLime?
+### Overview
+**sLime** is a high-performance, peer-to-peer video communication engine designed to eliminate the overhead of centralized signaling and cloud-dependent media servers. Built with a systems-first approach, it prioritizes local resource efficiency and end-to-end privacy.
 
-Most video tools today are over-engineered or locked behind corporate clouds. **sLime** (Scalable Live Interaction Media) is a developer-centric, open-source project aimed at providing a high-performance, "slime-smooth" video experience that runs entirely on your machine.
+### Core Technical Pillars
+* **Decentralized Architecture:** Pure P2P topology using WebRTC to minimize hop-count and latency.
+* **Memory Safety:** Built with **Rust** to ensure thread safety and high-speed signaling without the GC overhead of traditional runtimes.
+* **Native Performance:** Utilizes **Tauri** for a sub-20MB binary footprint, bypassing the bloat of standard Electron-based solutions.
+* **Side-by-Side Context:** Non-blocking chat interface optimized for multi-threaded media streams.
 
-No accounts, no trackers—just pure peer-to-peer (P2P) communication.
+### Technical Stack
+| Layer | Implementation | Rationale |
+| :--- | :--- | :--- |
+| **Runtime** | Rust / Tauri | Low-level hardware access & minimal memory overhead. |
+| **Frontend** | React / Tailwind | Component-driven UI with utility-first styling. |
+| **Networking** | WebRTC / PeerJS | Direct UDP-based media streaming. |
+| **State** | Redis (Local) | Fast, in-memory session persistence. |
 
-## ✨ Features
-
-* **Zero-Cloud Architecture:** Runs locally on your laptop.
-* **Minimal Footprint:** Built with Tauri to keep resource usage low, so your laptop fan doesn't scream during meetings.
-* **Side-by-Side Chat:** Integrated real-time messaging that doesn't obstruct the video feed.
-* **Direct Connect:** Uses WebRTC for the lowest possible latency between two points.
-
-## 🛠 Tech Stack (Draft)
-
-* **Core:** Rust (for high-speed signaling and future AI modules)
-* **Frontend:** React.js & Tailwind CSS
-* **Desktop Wrapper:** Tauri (Native OS Webview)
-* **P2P Protocol:** WebRTC / PeerJS
-
-## 📦 Installation (Local Use)
-
-Since sLime is designed to be lightweight, you can set it up in seconds:
+### Installation & Deployment
+Ensure you have the [Rust toolchain](https://www.rust-lang.org/tools/install) and Node.js installed.
 
 ```bash
-# Clone the repository
-git clone [https://github.com/Arvinder-Arvi/sLime.git](https://github.com/Arvinder-Arvi/sLime.git)
-
-# Enter the directory
+git clone [https://github.com/assokhi/sLime.git](https://github.com/assokhi/sLime.git)
 cd sLime
-
-# Install dependencies (requires Node.js and Rust installed)
 npm install
-
-# Run the app locally
 npm run tauri dev
