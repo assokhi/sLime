@@ -5,15 +5,23 @@ const ICE_SERVERS = [
   { urls: 'stun:stun1.l.google.com:19302' }
 ];
 
+const DC_LABEL = 'sLimeData';
+
 /**
- * WebRTCManager — manages RTCPeerConnection lifecycle per remote peer.
+ * WebRTCManager — manages RTCPeerConnection + DataChannel lifecycle per remote peer.
  */
 class WebRTCManager {
   constructor() {
     /** @type {Map<string, RTCPeerConnection>} */
     this._peers = new Map();
+    /** @type {Map<string, RTCDataChannel>} */
+    this._dataChannels = new Map();
     /** @type {MediaStream|null} */
     this._localStream = null;
+    /** @type {MediaStream|null} */
+    this._screenStream = null;
+    /** @type {Map<string, RTCRtpSender>} */
+    this._videoSenders = new Map();
     this._bindEvents();
   }
 
@@ -31,6 +39,76 @@ class WebRTCManager {
 
   getLocalStream() {
     return this._localStream;
+  }
+
+  // ─── Screen Share ──────────────────────────────────────
+  async startScreenShare() {
+    try {
+      this._screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'always' },
+        audio: false
+      });
+      const screenTrack = this._screenStream.getVideoTracks()[0];
+
+      // Replace camera track with screen track in all peer connections
+      for (const [remoteId, sender] of this._videoSenders) {
+        await sender.replaceTrack(screenTrack);
+      }
+
+      // When user clicks browser's "Stop sharing" button
+      screenTrack.onended = () => this.stopScreenShare();
+
+      eventBus.emit('screenshare:started', { stream: this._screenStream });
+      return this._screenStream;
+    } catch (err) {
+      console.error('[WebRTCManager] getDisplayMedia failed:', err);
+      return null;
+    }
+  }
+
+  async stopScreenShare() {
+    if (!this._screenStream) return;
+
+    // Stop screen tracks
+    for (const track of this._screenStream.getTracks()) {
+      track.stop();
+    }
+    this._screenStream = null;
+
+    // Revert to camera track in all peer connections
+    const camTrack = this._localStream?.getVideoTracks()[0];
+    if (camTrack) {
+      for (const [, sender] of this._videoSenders) {
+        await sender.replaceTrack(camTrack);
+      }
+    }
+
+    eventBus.emit('screenshare:stopped');
+  }
+
+  // ─── DataChannel ───────────────────────────────────────
+  sendData(message) {
+    const payload = JSON.stringify(message);
+    for (const [, dc] of this._dataChannels) {
+      if (dc.readyState === 'open') {
+        dc.send(payload);
+      }
+    }
+  }
+
+  _setupDataChannel(dc, remoteId) {
+    this._dataChannels.set(remoteId, dc);
+
+    dc.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        eventBus.emit('datachannel:message', { from: remoteId, ...msg });
+      } catch { /* ignore malformed */ }
+    };
+
+    dc.onclose = () => {
+      this._dataChannels.delete(remoteId);
+    };
   }
 
   _bindEvents() {
@@ -92,10 +170,17 @@ class WebRTCManager {
       eventBus.emit('room:leave');
     });
 
-    // Plugin hook: add extra tracks
-    eventBus.on('media:add-track', ({ track }) => {
-      for (const [, pc] of this._peers) {
-        pc.addTrack(track, this._localStream);
+    // Plugin hook: send data via datachannel
+    eventBus.on('datachannel:send', (message) => {
+      this.sendData(message);
+    });
+
+    // Plugin hook: screen share toggle
+    eventBus.on('ui:toggle-screenshare', () => {
+      if (this._screenStream) {
+        this.stopScreenShare();
+      } else {
+        this.startScreenShare();
       }
     });
   }
@@ -106,8 +191,31 @@ class WebRTCManager {
 
     if (this._localStream) {
       for (const track of this._localStream.getTracks()) {
-        pc.addTrack(track, this._localStream);
+        const sender = pc.addTrack(track, this._localStream);
+        // Keep track of video sender for screen share replacement
+        if (track.kind === 'video') {
+          this._videoSenders.set(remoteId, sender);
+        }
       }
+    }
+
+    // If currently screen sharing, replace the video track immediately
+    if (this._screenStream) {
+      const screenTrack = this._screenStream.getVideoTracks()[0];
+      const sender = this._videoSenders.get(remoteId);
+      if (sender && screenTrack) {
+        sender.replaceTrack(screenTrack);
+      }
+    }
+
+    // DataChannel: initiator creates, responder listens
+    if (isInitiator) {
+      const dc = pc.createDataChannel(DC_LABEL);
+      this._setupDataChannel(dc, remoteId);
+    } else {
+      pc.ondatachannel = (event) => {
+        this._setupDataChannel(event.channel, remoteId);
+      };
     }
 
     pc.onicecandidate = (event) => {
@@ -156,10 +264,17 @@ class WebRTCManager {
     if (!pc) return;
     pc.close();
     this._peers.delete(remoteId);
+    this._dataChannels.delete(remoteId);
+    this._videoSenders.delete(remoteId);
     eventBus.emit('media:remote-track-removed', { socketId: remoteId });
   }
 
   destroy() {
+    // Stop screen share if active
+    if (this._screenStream) {
+      for (const track of this._screenStream.getTracks()) track.stop();
+      this._screenStream = null;
+    }
     for (const [id] of this._peers) {
       this._closePeer(id);
     }

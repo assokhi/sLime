@@ -2,6 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import eventBus from '../core/eventBus';
 import signalingClient from '../core/signalingClient';
 import webrtcManager from '../core/webrtcManager';
+import PluginManager from '../core/pluginManager';
+import screenSharePlugin from '../plugins/screenSharePlugin';
+import chatPlugin from '../plugins/chatPlugin';
+import emojiPlugin from '../plugins/emojiPlugin';
 
 /**
  * useMediaStream — acquires local media and returns the stream.
@@ -39,9 +43,17 @@ export function useMeeting() {
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCamOn, setIsCamOn] = useState(true);
   const [roomFull, setRoomFull] = useState(false);
+  const pluginManagerRef = useRef(null);
 
   useEffect(() => {
     signalingClient.connect();
+
+    // Register V2 plugins
+    const pm = new PluginManager(eventBus);
+    pm.register(screenSharePlugin);
+    pm.register(chatPlugin);
+    pm.register(emojiPlugin);
+    pluginManagerRef.current = pm;
 
     const unsubs = [
       eventBus.on('room:joined', ({ roomId: id, peers: existingPeers }) => {
@@ -96,6 +108,7 @@ export function useMeeting() {
 
     return () => {
       unsubs.forEach((u) => u());
+      pm.unregisterAll();
       signalingClient.disconnect();
     };
   }, []);
@@ -122,4 +135,92 @@ export function useMeeting() {
     isMicOn, isCamOn, roomFull,
     joinRoom, leaveRoom, toggleMic, toggleCam
   };
+}
+
+/**
+ * useScreenShare — tracks screen sharing state.
+ */
+export function useScreenShare() {
+  const [isSharing, setIsSharing] = useState(false);
+
+  useEffect(() => {
+    const unsubs = [
+      eventBus.on('screenshare:started', () => setIsSharing(true)),
+      eventBus.on('screenshare:stopped', () => setIsSharing(false)),
+    ];
+    return () => unsubs.forEach((u) => u());
+  }, []);
+
+  const toggleScreenShare = useCallback(() => {
+    eventBus.emit('ui:toggle-screenshare');
+  }, []);
+
+  return { isSharing, toggleScreenShare };
+}
+
+/**
+ * useChat — manages chat message history.
+ */
+export function useChat() {
+  const [messages, setMessages] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const unsub = eventBus.on('chat:received', (msg) => {
+      setMessages((prev) => [...prev, msg]);
+      // Only increment unread when panel is closed and message is from remote
+      if (!msg.isLocal) {
+        setUnreadCount((prev) => prev + 1);
+      }
+    });
+    return unsub;
+  }, []);
+
+  const sendMessage = useCallback((text, senderName) => {
+    if (!text.trim()) return;
+    eventBus.emit('chat:send', { text: text.trim(), senderName });
+  }, []);
+
+  const openChat = useCallback(() => {
+    setIsOpen(true);
+    setUnreadCount(0);
+  }, []);
+
+  const closeChat = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const toggleChat = useCallback(() => {
+    setIsOpen((prev) => {
+      if (!prev) setUnreadCount(0);
+      return !prev;
+    });
+  }, []);
+
+  return { messages, unreadCount, isOpen, sendMessage, openChat, closeChat, toggleChat };
+}
+
+/**
+ * useEmoji — manages floating emoji reactions.
+ */
+export function useEmoji() {
+  const [reactions, setReactions] = useState([]);
+
+  useEffect(() => {
+    const unsub = eventBus.on('emoji:received', (reaction) => {
+      setReactions((prev) => [...prev, reaction]);
+      // Auto-remove after animation (3s)
+      setTimeout(() => {
+        setReactions((prev) => prev.filter((r) => r.id !== reaction.id));
+      }, 3000);
+    });
+    return unsub;
+  }, []);
+
+  const sendEmoji = useCallback((emoji, senderName) => {
+    eventBus.emit('emoji:send', { emoji, senderName });
+  }, []);
+
+  return { reactions, sendEmoji };
 }

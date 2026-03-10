@@ -54,6 +54,16 @@
   background: rgba(239, 68, 68, 0.25);
 }
 
+/* "Active" state (screen sharing on) */
+.ctrl-btn.active {
+  background: rgba(79, 140, 255, 0.2);
+  color: var(--accent);
+}
+
+.ctrl-btn.active:hover {
+  background: rgba(79, 140, 255, 0.3);
+}
+
 /* Leave button */
 .ctrl-btn.leave-btn {
   background: var(--danger);
@@ -66,6 +76,37 @@
 .ctrl-btn.leave-btn:hover {
   background: var(--danger-hover);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Button wrapper for relative positioning */
+.ctrl-btn-wrapper {
+  position: relative;
+}
+
+/* Notification badge (unread chat count) */
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* ─── Responsive ──────────────────────────────────────── */

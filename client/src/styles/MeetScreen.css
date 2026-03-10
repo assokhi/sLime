@@ -77,6 +77,14 @@
   color: var(--text-secondary);
 }
 
+/* ─── Body: Video + Chat side-by-side ─────────────────── */
+.meet-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* ─── Main Video Area ─────────────────────────────────── */
 .meet-main {
   flex: 1;
@@ -87,6 +95,7 @@
   padding: 16px;
   overflow: hidden;
   min-height: 0;
+  min-width: 0;
 }
 
 /* ─── Video Grid ──────────────────────────────────────── */
