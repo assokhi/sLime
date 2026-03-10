@@ -1,0 +1,182 @@
+/* ─── Meet Screen Layout ──────────────────────────────── */
+.meet-screen {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+/* ─── Header ──────────────────────────────────────────── */
+.meet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-brand {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+.header-brand span {
+  color: var(--accent);
+}
+
+.header-center {
+  flex: 0;
+}
+
+.room-code-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  color: var(--text-secondary);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.room-code-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.participant-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ─── Main Video Area ─────────────────────────────────── */
+.meet-main {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ─── Video Grid ──────────────────────────────────────── */
+.video-grid {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  max-height: 100%;
+}
+
+/* Single participant: centered */
+.grid-1 {
+  grid-template-columns: 1fr;
+  max-width: 800px;
+}
+
+/* Two participants: side by side */
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+  align-content: center;
+}
+
+/* Three participants: 2 + 1 centered */
+.grid-3 {
+  grid-template-columns: 1fr 1fr;
+  align-content: center;
+}
+
+.grid-3 .video-tile:last-child {
+  grid-column: 1 / -1;
+  max-width: 50%;
+  justify-self: center;
+}
+
+/* Four participants: 2x2 */
+.grid-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* ─── PiP Local Video ────────────────────────────────── */
+.local-pip {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  z-index: 20;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-smooth);
+  cursor: grab;
+}
+
+.local-pip:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.02);
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .meet-main {
+    padding: 8px;
+  }
+
+  .video-grid {
+    gap: 8px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .local-pip {
+    width: 140px;
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .meet-header {
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .local-pip {
+    width: 110px;
+  }
+}

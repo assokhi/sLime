@@ -1,0 +1,84 @@
+/* ─── Video Tile ──────────────────────────────────────── */
+.video-tile {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  aspect-ratio: 16 / 9;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: box-shadow var(--transition-smooth);
+}
+
+.video-tile:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.video-tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-tile video.mirrored {
+  transform: scaleX(-1);
+}
+
+/* Placeholder when camera is off */
+.tile-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-elevated) 100%);
+}
+
+.tile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+/* Name label — gradient overlay at bottom (Zoom-style) */
+.tile-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 12px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.tile-label span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Compact (PiP) variant ───────────────────────────── */
+.video-tile.compact {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+}
+
+.video-tile.compact .tile-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.video-tile.compact .tile-label {
+  padding: 16px 8px 6px;
+}
+
+.video-tile.compact .tile-label span {
+  font-size: 0.7rem;
+}

@@ -1,0 +1,87 @@
+/* ─── Controls Bar (Google Meet inspired floating bar) ── */
+.controls-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  background: var(--bg-secondary);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.controls-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Individual control button */
+.ctrl-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+.ctrl-btn:active {
+  transform: scale(0.95);
+}
+
+/* "Off" state (muted mic / camera off) */
+.ctrl-btn.off {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.ctrl-btn.off:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* Leave button */
+.ctrl-btn.leave-btn {
+  background: var(--danger);
+  color: #fff;
+  width: 56px;
+  height: 48px;
+  border-radius: var(--radius-full);
+}
+
+.ctrl-btn.leave-btn:hover {
+  background: var(--danger-hover);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  .controls-center {
+    gap: 8px;
+    padding: 4px 12px;
+  }
+
+  .ctrl-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .ctrl-btn.leave-btn {
+    width: 50px;
+    height: 42px;
+  }
+}
